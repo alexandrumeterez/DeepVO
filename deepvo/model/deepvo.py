@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-
+from deepvo.conf.params import *
 
 def conv(in_channels, out_channels, kernel_size, stride, padding, dropout=0):
     return nn.Sequential(
@@ -11,7 +10,7 @@ def conv(in_channels, out_channels, kernel_size, stride, padding, dropout=0):
     )
 
 
-class DeeoVO(nn.Module):
+class DeepVO(nn.Module):
     def __init__(self):
         super().__init__()
         self.conv1 = conv(6, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3))
@@ -27,25 +26,20 @@ class DeeoVO(nn.Module):
         self.fc = nn.Linear(in_features=100, out_features=6)
 
     def forward(self, x):
+        batch_size = x.size(0)
+        seq_len = x.size(1)
+        x = x.view(batch_size * seq_len, x.size(2), x.size(3), x.size(4))
         x = self.conv1(x)
-        x = self.relu1(x)
         x = self.conv2(x)
-        x = self.relu2(x)
         x = self.conv3(x)
-        x = self.relu3(x)
         x = self.conv3_1(x)
-        x = self.relu3_1(x)
         x = self.conv4(x)
-        x = self.relu4(x)
         x = self.conv4_1(x)
-        x = self.relu4_1(x)
         x = self.conv5(x)
-        x = self.relu5(x)
         x = self.conv5_1(x)
-        x = self.relu5_1(x)
         x = self.conv6(x)
-        x = x.view(x.size(0), 20 * 6 * 1024)
+        x = x.view(batch_size, seq_len, -1)
         out, hidden = self.rnn(x)
-
         out = self.fc(out)
+
         return out

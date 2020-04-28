@@ -3,12 +3,13 @@ import numpy as np
 from torch.utils.data import Dataset
 from deepvo.conf.params import *
 from deepvo.utils.utils import load_image, Log, get6DoFPose, visualize
+from PIL import Image
 
 TAG = 'KITTIVisualOdometryDataset'
 
 
 class KITTIVisualOdometryDataset(Dataset):
-    def __init__(self, images_dir, poses_dir, train_sequences, trajectory_length=10, transform=None):
+    def __init__(self, images_dir, poses_dir, train_sequences, trajectory_length=TRAJECTORY_LENGTH, transform=None):
         self.images_dir = images_dir
         self.poses_dir = poses_dir
         self.sequences = train_sequences
@@ -31,8 +32,7 @@ class KITTIVisualOdometryDataset(Dataset):
     def load_image(self, sequence, index):
         # Log(TAG, f'Loading {sequence} : {index}')
         path = os.path.join(self.images_dir, 'sequences', sequence, 'image_2', '%06d' % index + '.png')
-        image = np.array(load_image(path))
-        image = np.moveaxis(image, 2, 0)
+        image = load_image(path)
         return image
 
     def get_sequence(self, index):
@@ -40,16 +40,17 @@ class KITTIVisualOdometryDataset(Dataset):
         for sequence, seq_size in enumerate(self.sequences_sizes):
             # If we can fit [index, index + traj_len] in this sequence,
             # then choose this sequence
-            if index + self.trajectory_length < total:
-                return sequence, total - index
-            total += seq_size
+            if index + self.trajectory_length < seq_size:
+                return sequence, index
+            index = index - (seq_size - self.trajectory_length)
+            sequence += 1
 
     def __getitem__(self, index):
         # Find sequence that contains index and the index corespondent in the sequence
         sequence, index = self.get_sequence(index)
 
         # Form a batch
-        imgs_batch, odom_batch = [], []
+        imgs_seq, odom_seq = [], []
         for i in range(index, index + self.trajectory_length):
             img1 = self.load_image(self.sequences[sequence], i)
             img2 = self.load_image(self.sequences[sequence], i + 1)
@@ -59,6 +60,9 @@ class KITTIVisualOdometryDataset(Dataset):
             if self.transform:
                 img1 = self.transform(img1)
                 img2 = self.transform(img2)
-            imgs_batch.append(np.concatenate([img1, img2], axis=0))
-            odom_batch.append(odom)
-        return np.array(imgs_batch), np.array(odom_batch)
+            imgs_seq.append(np.concatenate([img1, img2], axis=0))
+            odom_seq.append(odom)
+        return np.array(imgs_seq), np.array(odom_seq)
+
+    def __len__(self):
+        return self.size - self.trajectory_length * len(self.sequences)

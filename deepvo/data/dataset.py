@@ -62,13 +62,3 @@ class KITTIVisualOdometryDataset(Dataset):
             imgs_batch.append(np.concatenate([img1, img2], axis=0))
             odom_batch.append(odom)
         return np.array(imgs_batch), np.array(odom_batch)
-
-
-# Test
-if __name__ == '__main__':
-    vods = KITTIVisualOdometryDataset(IMAGES_DIR, POSES_DIR, TRAIN_SEQUENCES)
-    imgs, odom = vods[5000]
-    visualize(imgs, vods.trajectory_length)
-
-    print(imgs.shape)
-    print(odom.shape)

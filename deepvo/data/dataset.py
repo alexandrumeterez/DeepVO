@@ -66,12 +66,3 @@ class KITTIVisualOdometryDataset(Dataset):
 
     def __len__(self):
         return self.size - self.trajectory_length * len(self.sequences)
-
-
-if __name__ == '__main__':
-    vods = KITTIVisualOdometryDataset(IMAGES_DIR, POSES_DIR, TRAIN_SEQUENCES)
-    imgs, odom = vods[0]
-
-    pose = getPoseFromOdometry(odom)
-
-    plot_both(imgs, TRAJECTORY_LENGTH, pose + 50, pose)

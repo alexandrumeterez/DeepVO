@@ -1,7 +1,9 @@
 from PIL import Image
 import math
 import numpy as np
-from deepvo.conf.params import TRAJECTORY_LENGTH
+from deepvo.conf.params import TRAJECTORY_LENGTH, SAVED_MODELS_DIR
+import torch
+import os
 
 
 def load_image(path):
@@ -10,6 +12,12 @@ def load_image(path):
 
 def Log(tag, message):
     print(f'[{tag}] {message}')
+
+
+def save_model(model, name):
+    path = os.path.join(SAVED_MODELS_DIR, name)
+    torch.save(model.state_dict(), path)
+    print(f'Saved model {name} to {path}')
 
 
 def isRotationMatrix(R):

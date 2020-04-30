@@ -36,7 +36,6 @@ class KITTIVisualOdometryDataset(Dataset):
         return image
 
     def get_sequence(self, index):
-        total = 0
         for sequence, seq_size in enumerate(self.sequences_sizes):
             # If we can fit [index, index + traj_len] in this sequence,
             # then choose this sequence

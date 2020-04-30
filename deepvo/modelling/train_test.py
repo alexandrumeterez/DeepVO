@@ -25,7 +25,7 @@ def train_model(model, train_loader, criterion, optimizer):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        epoch_loss += loss
+        epoch_loss += loss.item()
         end = time.time()
         print(f'\t Batch [{batch}/{n_batches}], {end-start}s -> Loss: {loss.item()}')
     return epoch_loss / n_batches

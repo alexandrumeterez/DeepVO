@@ -2,8 +2,8 @@ import os
 import numpy as np
 from torch.utils.data import Dataset
 from deepvo.conf.params import *
-from deepvo.utils.utils import load_image, Log, get6DoFPose, visualize
-from PIL import Image
+from deepvo.utils.utils import load_image, Log, get6DoFPose, getPoseFromOdometry
+from deepvo.visualization.routes import plot_both
 
 TAG = 'KITTIVisualOdometryDataset'
 
@@ -66,3 +66,12 @@ class KITTIVisualOdometryDataset(Dataset):
 
     def __len__(self):
         return self.size - self.trajectory_length * len(self.sequences)
+
+
+if __name__ == '__main__':
+    vods = KITTIVisualOdometryDataset(IMAGES_DIR, POSES_DIR, TRAIN_SEQUENCES)
+    imgs, odom = vods[0]
+
+    pose = getPoseFromOdometry(odom)
+
+    plot_both(imgs, TRAJECTORY_LENGTH, pose + 50, pose)

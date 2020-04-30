@@ -1,8 +1,7 @@
 from PIL import Image
 import math
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
+from deepvo.conf.params import TRAJECTORY_LENGTH
 
 
 def load_image(path):
@@ -43,13 +42,9 @@ def get6DoFPose(p):
     return np.concatenate((pos, angles))
 
 
-def visualize(img_arr, length):
-    fig = plt.figure()
-    ims = []
-    for i in range(length):
-        image = img_arr[i, :3, :, :]
-        image = np.moveaxis(image, 0, 2)
-        im = plt.imshow(image, animated=True)
-        ims.append([im])
-    ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True, repeat_delay=1000)
-    plt.show()
+def getPoseFromOdometry(odom):
+    pose = np.zeros_like(odom)
+    pose[0, :] = odom[0, :]
+    for i in range(1, TRAJECTORY_LENGTH):
+        pose[i, :] = odom[i, :] + pose[i - 1, :]
+    return pose

@@ -20,8 +20,7 @@ def visualize_route(img_arr, length):
     fig = plt.figure()
     ims = []
     for i in range(length):
-        h = img_arr.shape[1]
-        image = img_arr[i, h // 2:, :, :]
+        image = img_arr[i]
         im = plt.imshow(image, animated=True)
         ims.append([im])
     ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True, repeat_delay=1000)
@@ -32,8 +31,7 @@ def plot_both(img_arr, length, gt, out):
     fig = plt.figure(1)
     ims = []
     for i in range(length):
-        h = img_arr.shape[1]
-        image = img_arr[i, h // 2:, :, :]
+        image = img_arr[i]
         im = plt.imshow(image, animated=True)
         ims.append([im])
 
